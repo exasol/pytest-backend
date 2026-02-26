@@ -1,4 +1,9 @@
-# Byte-compiled / optimized / DLL files
+.lint.json
+.lint.txt
+.security.json
+.html-documentation
+.coverage
+.sonar
 __pycache__/
 *.py[cod]
 *$py.class
