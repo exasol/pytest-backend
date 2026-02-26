@@ -31,7 +31,7 @@ poetry add pytest-exasol-backend --group dev
 
 ### PyExasol Connection
 
-This test accesses the database via [PyExasol](github.com/exasol/pyexasol) and requires an additional (`dev`) dependency to `pyexasol` to be added to your project.
+This test accesses the database via [PyExasol](https://github.com/exasol/pyexasol) and requires an additional (`dev`) dependency to `pyexasol` to be added to your project.
 
 Note: If the pytest option `--backend all` is specified, then this test will run **twice** - once for each backend.
 
@@ -72,7 +72,7 @@ def test_my_file_exists(backend_aware_bucketfs_params):
 
 ### Inspect the Selected Backend Variant
 
-For inquiring the currenty selected backend variant in a test case, you can use the `backend` fixture, as shown below.
+For inquiring the currently selected backend variant in a test case, you can use the `backend` fixture, as shown below.
 
 ```python
 def test_something_backend_sensitive(backend):
