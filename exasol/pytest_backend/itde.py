@@ -83,7 +83,7 @@ _ONPREM_BFS_OPTIONS = config.OptionGroup(
         {
             "name": "url",
             "type": str,
-            "default": f"http://127.0.0.1:{Ports.forward.bucketfs}",
+            "default": f"http://127.0.0.1:{Ports.forward.bucketfs_http}",
             "help_text": "Base url used to connect to the bucketfs service",
         },
         {
