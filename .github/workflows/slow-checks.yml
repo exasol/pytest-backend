@@ -1,52 +1,46 @@
-name: Slow-Checks
+name: Slow Checks
 
 on:
   workflow_call:
 
 jobs:
-  build-matrix:
-    name: Generate Build Matrix
-    uses: ./.github/workflows/matrix-all.yml
-    permissions:
-      contents: read
-
   tests:
-    name: Integration-Tests (Python-${{ matrix.python-version }}, Exasol-${{ matrix.exasol-version}})
-    needs:
-      - build-matrix
+    name: Integration Tests
     runs-on: "ubuntu-24.04"
     permissions:
       contents: read
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
 
     steps:
-      - name: SCM Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Python & Poetry Environment
-        uses: exasol/python-toolbox/.github/actions/python-environment@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          poetry-version: "2.3.0"
 
       - name: Allow unprivileged user namespaces
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      - name: Run Tests and Collect Coverage
-        run: poetry run -- nox -s test:integration -- --coverage --db-version ${{ matrix.exasol-version }}
+      - name: Check out Repository
+        id: check-out-repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python & Poetry Environment
+        id: set-up-python-and-poetry-environment
+        uses: exasol/python-toolbox/.github/actions/python-environment@v6
+        with:
+          python-version: "3.10"
+          poetry-version: "2.3.0"
+
+      - name: Integration Tests
+        id: run-integration-tests
+        run: >
+          poetry run -- nox -s test:integration --
+          --coverage -rA --setup-show
+          -o log_cli=true -o log_cli_level=INFO
         env:
           SAAS_HOST: ${{ secrets.INTEGRATION_TEAM_SAAS_STAGING_HOST }}
           SAAS_ACCOUNT_ID: ${{ secrets.INTEGRATION_TEAM_SAAS_STAGING_ACCOUNT_ID }}
           SAAS_PAT: ${{ secrets.INTEGRATION_TEAM_SAAS_STAGING_PAT }}
-          PYTEST_ADDOPTS: '${{ steps.pytest-markers.outputs.slow-tests }}'
 
       - name: Upload Artifacts
+        id: upload-artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: coverage-python${{ matrix.python-version }}-exasol${{ matrix.exasol-version }}-slow
+          name: coverage-python3.10-slow
           path: .coverage
           include-hidden-files: true

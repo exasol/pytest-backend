@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+import exasol_integration_test_docker_environment.cli.options.test_environment_options as itde_cli
 import pytest
 from exasol_integration_test_docker_environment.lib.test_environment.ports import Ports
 
@@ -82,7 +83,7 @@ _ONPREM_BFS_OPTIONS = config.OptionGroup(
         {
             "name": "url",
             "type": str,
-            "default": f"http://127.0.0.1:{Ports.forward.bucketfs}",
+            "default": f"http://127.0.0.1:{Ports.forward.bucketfs_http}",
             "help_text": "Base url used to connect to the bucketfs service",
         },
         {
@@ -112,9 +113,9 @@ _SSH_OPTIONS = config.OptionGroup(
     ),
 )
 
-DEFAULT_ITDE_DB_VERSION = "8.18.1"
-DEFAULT_ITDE_DB_MEM_SIZE = "2 GiB"
-DEFAULT_ITDE_DB_DISK_SIZE = "2 GiB"
+DEFAULT_ITDE_DB_VERSION = itde_cli.LATEST_DB_VERSION
+DEFAULT_ITDE_DB_MEM_SIZE = itde_cli.DEFAULT_MEM_SIZE
+DEFAULT_ITDE_DB_DISK_SIZE = itde_cli.DEFAULT_DISK_SIZE
 
 _ITDE_OPTIONS = config.OptionGroup(
     prefix="itde",
@@ -123,7 +124,10 @@ _ITDE_OPTIONS = config.OptionGroup(
             "name": "db_version",
             "type": str,
             "default": DEFAULT_ITDE_DB_VERSION,
-            "help_text": "DB version to start, if value is 'external' an existing instance will be used",
+            "help_text": """
+            DB version to start, if value is 'external' an existing instance will be used.
+            See the README for additional options such as host, port, and bucketfs-password.
+            """,
         },
         {
             "name": "db_mem_size",

@@ -92,7 +92,7 @@ BUCKETFS_OPTIONS = (
     {
         "name": "url",
         "type": str,
-        "default": f"http://127.0.0.1:{Ports.default_ports.bucketfs}",
+        "default": f"http://127.0.0.1:{Ports.default_ports.bucketfs_http}",
         "help_text": "Base url used to connect to the bucketfs service",
     },
     {
