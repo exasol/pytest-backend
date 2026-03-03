@@ -5,22 +5,10 @@ on:
 
 jobs:
   tests:
-    name: Integration Tests (${{ matrix.backend }}, ${{ matrix.exasol-version}})
+    name: Integration Tests
     runs-on: "ubuntu-24.04"
     permissions:
       contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - backend: saas
-            exasol-version: provided
-          - backend: onprem
-            exasol-version: "7.1.30"
-          - backend: onprem
-            exasol-version: "8.29.13"
-          - backend: onprem
-            exasol-version: "2025.1.8"
 
     steps:
 
@@ -41,9 +29,9 @@ jobs:
       - name: Integration Tests
         id: run-integration-tests
         run: >
-          poetry run -- nox -s test:integration -- -s --coverage
-          --backend=${{ matrix.backend }}
-          --db-version ${{ matrix.exasol-version }}
+          poetry run -- nox -s test:integration --
+          --coverage -rA --setup-show
+          -o log_cli=true -o log_cli_level=INFO
         env:
           SAAS_HOST: ${{ secrets.INTEGRATION_TEAM_SAAS_STAGING_HOST }}
           SAAS_ACCOUNT_ID: ${{ secrets.INTEGRATION_TEAM_SAAS_STAGING_ACCOUNT_ID }}
@@ -53,6 +41,6 @@ jobs:
         id: upload-artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: coverage-python3.10-${{ matrix.backend }}-${{ matrix.exasol-version }}
+          name: coverage-python3.10-slow
           path: .coverage
           include-hidden-files: true
