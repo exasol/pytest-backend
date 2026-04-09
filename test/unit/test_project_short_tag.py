@@ -14,15 +14,11 @@ def test_read_from_yaml(tmp_path):
     short_tag = "ABC"
     short_tag_file = tmp_path / YML_FILE
     with short_tag_file.open("w") as f:
-        f.write(
-            dedent(
-                f"""
+        f.write(dedent(f"""
         error-tags:
             {short_tag}:
                 highest-index: 0
-        """
-            )
-        )
+        """))
     assert read_from_yaml(start_dir) == short_tag
 
 
@@ -38,14 +34,10 @@ def test_read_from_yaml_invalid(tmp_path):
     start_dir = tmp_path / "start_dir"
     short_tag_file = tmp_path / YML_FILE
     with short_tag_file.open("w") as f:
-        f.write(
-            dedent(
-                f"""
+        f.write(dedent(f"""
         whatever:
             ABC:
                 highest-index: 0
-        """
-            )
-        )
+        """))
     with pytest.raises(RuntimeError):
         read_from_yaml(start_dir)

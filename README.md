@@ -95,11 +95,11 @@ Please use the `--backend` option to specify the target backend with either `onp
 The plugin automatically starts the selected backends and shuts them down after the test session has finished.
 * A SaaS backend is started via [saas-api-python](https://github.com/exasol/saas-api-python/).
 * An On-Prem backend via the [ITDE](https://github.com/exasol/integration-test-docker-environment).
-* Additionally you can [use an external or local database](#re-using-an-external-or-local-database).
+* Additionally, you can [use an external or local database](#re-using-an-external-or-local-database).
 
-Please noe that all selected backends are started preemptively, regardless of their _actual usage_ in tests.
+Please note that all selected backends are started preemptively, regardless of their _actual usage_ in tests.
 
-Therefore, it is important to make sure the backends are not selected where they are not needed, for instance when running unit tests only.
+Therefore, it is important to make sure the backends are not selected if they are not needed, for instance when running unit tests only.
 
 ### Example Command Lines
 
@@ -177,4 +177,3 @@ Fixture `project_short_tag` tries to read the current project's short tag from t
 * CLI option `--project-short-tag`
 * Environment variable `PROJECT_SHORT_TAG`
 * Yaml file `error_code_config.yml`
-

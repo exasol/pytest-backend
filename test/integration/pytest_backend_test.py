@@ -26,8 +26,7 @@ def _testfile(body):
 
 
 def test_pytest_all_backends(pytester):
-    test_code = dedent(
-        """
+    test_code = dedent("""
         import pyexasol
         import exasol.bucketfs as bfs
 
@@ -43,8 +42,7 @@ def test_pytest_all_backends(pytester):
             data_back = b''.join(bfs_path.read())
             bfs_path.rm()
             assert data_back == file_content
-    """
-    )
+    """)
     pytester.makepyfile(test_code)
     result = pytester.runpytest(
         BACKEND_OPTION, BACKEND_ALL, "--project-short-tag", "PYTBE"
@@ -54,16 +52,14 @@ def test_pytest_all_backends(pytester):
 
 
 def test_pytest_single_backend(pytester):
-    test_code = dedent(
-        """
+    test_code = dedent("""
         import pyexasol
 
         def test_backend_aware_database_params(backend_aware_database_params):
             conn = pyexasol.connect(**backend_aware_database_params)
             res = conn.execute('SELECT SESSION_ID FROM SYS.EXA_ALL_SESSIONS;').fetchall()
             assert res
-    """
-    )
+    """)
     pytester.makepyfile(test_code)
     result = pytester.runpytest(BACKEND_OPTION, BACKEND_ONPREM)
     assert result.ret == pytest.ExitCode.OK
@@ -79,16 +75,14 @@ def test_itde_options(pytester):
     db_parameter2 = "my_parameter2"
     db_version = "1000.100.10.1"
 
-    test_code = dedent(
-        f"""
+    test_code = dedent(f"""
         def test_backend_aware_database_params(itde_config):
             assert itde_config.db_mem_size == '{db_mem_size}'
             assert itde_config.db_disk_size == '{db_disk_size}'
             assert itde_config.nameserver == ['{nameserver1}', '{nameserver2}']
             assert itde_config.additional_db_parameter == ['{db_parameter1}', '{db_parameter2}']
             assert itde_config.db_version == '{db_version}'
-    """
-    )
+    """)
     pytester.makepyfile(test_code)
     result = pytester.runpytest(
         "--itde-db-mem-size",
@@ -127,7 +121,6 @@ def test_default_itde_options(itde_config):
     ],
 )
 def test_project_short_tag(
-    request,
     pytester,
     pst_file,
     pst_env,
@@ -142,24 +135,16 @@ def test_project_short_tag(
     if pst_file:
         pytester.makefile(
             ".yml",
-            **{
-                "error_code_config": cleandoc(
-                    f"""
+            **{"error_code_config": cleandoc(f"""
             error-tags:
               {pst_file}:
                 highest-index: 0
-            """
-                )
-            },
+            """)},
         )
-    pytester.makepyfile(
-        **_testfile(
-            f"""
+    pytester.makepyfile(**_testfile(f"""
         def test_project_short_tag(project_short_tag):
             assert "{expected}" == project_short_tag
-        """
-        )
-    )
+        """))
     env = {"PROJECT_SHORT_TAG": pst_env} if pst_env else {}
     cli_args = ["--project-short-tag", pst_cli] if pst_cli else []
     with mock.patch.dict(os.environ, env):
