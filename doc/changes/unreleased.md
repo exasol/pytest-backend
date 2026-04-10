@@ -5,6 +5,7 @@
 ## Refactoring
 
  * #16: Updated to latest PTB 6.1.1, regenerated workflows and added `.workflow-patcher.yml`
+ * #3: Added Python 3.14 support
 
 ## Security
 

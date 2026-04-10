@@ -5,7 +5,7 @@ version = "1.4.0"
 # to the ParallelTask implementation for Python 3.14.
 # This will be resolved in:
 #    https://github.com/exasol/pytest-backend/issues/3
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<4"
 description = ""
 authors = [
     {name="Mikhail Beck", email="mikhail.beck@exasol.com"}
