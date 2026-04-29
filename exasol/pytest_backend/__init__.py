@@ -262,9 +262,12 @@ def backend_aware_saas_database_id(
     If the saas is a selected backend, this fixture waits until the temporary SaaS database
     becomes available.
     """
+    database_id = backend_aware_saas_database_id_async
     if saas_api_access is not None:
-        saas_api_access.wait_until_running(backend_aware_saas_database_id_async)
-    yield backend_aware_saas_database_id_async
+        database_id = saas_api_access.wait_until_running(
+            backend_aware_saas_database_id_async
+        )
+    yield database_id
 
 
 @pytest.fixture(scope="session")
