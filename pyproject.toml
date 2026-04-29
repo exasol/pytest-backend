@@ -1,6 +1,6 @@
 [project]
 name = "pytest-exasol-backend"
-version = "1.4.0"
+version = "1.4.1"
 description = ""
 # Restrict Python versions as difficulty with some unit tests related
 # to the ParallelTask implementation for Python 3.14.
