@@ -4,6 +4,7 @@ import os
 import ssl
 from collections.abc import Iterable
 from datetime import timedelta
+from importlib.metadata import version
 from typing import (
     Any,
 )
@@ -32,6 +33,8 @@ from .itde import (
     itde_pytest_addoption,
 )
 from .parallel_task import paralleltask
+
+__version__ = version("pytest-exasol-backend")
 
 BACKEND_OPTION = "--backend"
 BACKEND_ONPREM = "onprem"
