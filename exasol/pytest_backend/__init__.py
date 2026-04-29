@@ -33,6 +33,9 @@ from .itde import (
 )
 from .parallel_task import paralleltask
 
+from importlib.metadata import version
+__version__ = version("pytest-exasol-backend")
+
 BACKEND_OPTION = "--backend"
 BACKEND_ONPREM = "onprem"
 BACKEND_SAAS = "saas"
