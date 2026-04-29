@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import ssl
+import time
 from collections.abc import Iterable
 from datetime import timedelta
 from typing import (
@@ -12,11 +13,15 @@ from urllib.parse import urlparse
 import pytest
 from exasol.saas import client as saas_client
 from exasol.saas.client.api_access import (
+    DatabaseDeleteError,
     OpenApiAccess,
+    OpenApiError,
+    _get_database_id,
     create_saas_client,
     get_connection_params,
     timestamp_name,
 )
+from exasol.saas.client.openapi.models import Status
 from exasol_integration_test_docker_environment.lib import api
 from exasol_integration_test_docker_environment.lib.models.data.environment_info import (
     EnvironmentInfo,
@@ -37,6 +42,100 @@ BACKEND_OPTION = "--backend"
 BACKEND_ONPREM = "onprem"
 BACKEND_SAAS = "saas"
 BACKEND_ALL = "all"
+
+_SAAS_STARTUP_TIMEOUT = timedelta(minutes=30)
+_SAAS_STARTUP_INTERVAL = timedelta(minutes=2)
+_SAAS_DELETE_ATTEMPTS = 3
+_SAAS_DELETE_DELAY = timedelta(seconds=20)
+
+
+def _resolve_saas_database_id(
+    saas_api_access: OpenApiAccess,
+    database_name: str,
+) -> str | None:
+    try:
+        return _get_database_id(
+            saas_api_access._account_id,  # noqa: SLF001
+            saas_api_access._client,  # noqa: SLF001
+            database_name,
+        )
+    except RuntimeError:
+        return None
+
+
+def _wait_until_saas_database_running(
+    saas_api_access: OpenApiAccess,
+    database_name: str,
+    fallback_database_id: str,
+    timeout: timedelta = _SAAS_STARTUP_TIMEOUT,
+    interval: timedelta = _SAAS_STARTUP_INTERVAL,
+) -> str:
+    deadline = time.monotonic() + timeout.total_seconds()
+    current_database_id = fallback_database_id
+
+    while time.monotonic() < deadline:
+        refreshed_database_id = _resolve_saas_database_id(
+            saas_api_access, database_name
+        )
+        if refreshed_database_id is not None:
+            current_database_id = refreshed_database_id
+        else:
+            time.sleep(interval.total_seconds())
+            continue
+        try:
+            db = saas_api_access.get_database(current_database_id)
+        except OpenApiError as ex:
+            if "user/database not found" not in str(ex).lower():
+                raise
+            time.sleep(interval.total_seconds())
+            continue
+
+        status = db.status if db else None
+        if status == Status.RUNNING:
+            return current_database_id
+        time.sleep(interval.total_seconds())
+
+    raise RuntimeError(
+        f"SaaS database '{database_name}' did not reach RUNNING within {timeout}."
+    )
+
+
+def _delete_saas_database_resilient(
+    saas_api_access: OpenApiAccess,
+    database_name: str,
+    fallback_database_id: str,
+    ignore_failures: bool,
+) -> None:
+    current_database_id = fallback_database_id
+
+    for attempt in range(1, _SAAS_DELETE_ATTEMPTS + 1):
+        refreshed_database_id = _resolve_saas_database_id(
+            saas_api_access, database_name
+        )
+        if refreshed_database_id is not None:
+            current_database_id = refreshed_database_id
+        else:
+            try:
+                known_ids = set(saas_api_access.list_database_ids())
+                if current_database_id not in known_ids:
+                    return
+            except Exception:
+                pass
+        try:
+            saas_api_access.delete_database(
+                current_database_id,
+                ignore_failures=False,
+                timeout=timedelta(minutes=5),
+                max_interval=timedelta(seconds=20),
+            )
+            return
+        except DatabaseDeleteError:
+            if attempt < _SAAS_DELETE_ATTEMPTS:
+                time.sleep(_SAAS_DELETE_DELAY.total_seconds())
+                continue
+            if ignore_failures:
+                return
+            raise
 
 
 def pytest_addoption(parser):
@@ -243,11 +342,20 @@ def backend_aware_saas_database_id_async(
         keep = request.config.getoption("--keep-saas-database")
         idle_hours = float(request.config.getoption("--saas-max-idle-hours"))
 
-        # Create a temporary database
-        with saas_api_access.database(
-            name=saas_database_name, keep=keep, idle_time=timedelta(hours=idle_hours)
-        ) as db:
+        db = saas_api_access.create_database(
+            name=saas_database_name, idle_time=timedelta(hours=idle_hours)
+        )
+        if db is None:
+            raise RuntimeError(
+                f"Failed to create SaaS database '{saas_database_name}'."
+            )
+        try:
             yield db.id
+        finally:
+            if not keep:
+                _delete_saas_database_resilient(
+                    saas_api_access, saas_database_name, db.id, ignore_failures=False
+                )
     elif use_saas:
         yield request.config.getoption("--saas-database-id")
     else:
@@ -256,7 +364,7 @@ def backend_aware_saas_database_id_async(
 
 @pytest.fixture(scope="session")
 def backend_aware_saas_database_id(
-    saas_api_access, backend_aware_saas_database_id_async
+    saas_api_access, backend_aware_saas_database_id_async, saas_database_name
 ) -> Iterable[str]:
     """
     If the saas is a selected backend, this fixture waits until the temporary SaaS database
@@ -264,8 +372,10 @@ def backend_aware_saas_database_id(
     """
     database_id = backend_aware_saas_database_id_async
     if saas_api_access is not None:
-        database_id = saas_api_access.wait_until_running(
-            backend_aware_saas_database_id_async
+        database_id = _wait_until_saas_database_running(
+            saas_api_access,
+            saas_database_name,
+            backend_aware_saas_database_id_async,
         )
     yield database_id
 
