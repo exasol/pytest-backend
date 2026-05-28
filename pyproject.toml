@@ -31,7 +31,7 @@ backend = "exasol.pytest_backend"
 
 [dependency-groups]
 dev = [
-    "exasol-toolbox>=7.0.0,<8",
+    "exasol-toolbox>=8.1.1,<9",
     "exasol-bucketfs>=1.0.0",
     "pyexasol>=1, <3",
     "types-PyYAML>=6.0.12",
