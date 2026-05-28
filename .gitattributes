@@ -1,6 +1,5 @@
 /*/poetry.lock                      linguist-generated
 /*/doc/changes/changelog.md         linguist-generated
-/exasol/pytest_backend/version.py   linguist-generated
 
 # PTB GitHub Workflows (CI/CD & Publishing)
 .github/workflows/build-and-publish.yml     linguist-generated=true

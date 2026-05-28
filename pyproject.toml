@@ -90,6 +90,5 @@ ignore_missing_imports = true
 
 [tool.sonar]
 projectKey = "com.exasol:pytest-backend"
-hostUrl = "https://sonarcloud.io"
+host.url = "https://sonarcloud.io"
 organization = "exasol"
-exclusions = "exasol/pytest_backend/version.py"
