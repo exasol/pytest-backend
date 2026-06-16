@@ -95,7 +95,7 @@ def _is_backend_selected(request, backend: str) -> bool:
 @pytest.fixture(scope="session", params=[BACKEND_ONPREM, BACKEND_SAAS])
 def backend(request) -> str:
     if not _is_backend_selected(request, request.param):
-        pytest.skip()
+        pytest.skip("No backend was selected")
     return request.param
 
 
