@@ -55,7 +55,7 @@ def read_from_yaml(start_dir: Path) -> str | None:
         ecc = yaml.safe_load(file)
         try:
             return next(t for t in ecc["error-tags"])
-        except Exception as ex:
+        except Exception:
             raise RuntimeError(
                 f"Could not read project short tag from file {config_file}"
             )
