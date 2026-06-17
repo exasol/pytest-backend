@@ -8,3 +8,4 @@
 * #6: Updated mypy checks to include all packages from Exasol
 * #31: Updated to `exasol-toolbox` 8.2.0
 * #27: Fixed SonarQube warnings
+* #34: Fixed SonarQube Cloud warning
