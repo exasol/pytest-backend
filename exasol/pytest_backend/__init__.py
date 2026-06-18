@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import ssl
+import time
 from collections.abc import Iterable
 from datetime import timedelta
 from importlib.metadata import version
@@ -224,7 +225,15 @@ def saas_api_access(
         client = create_saas_client(host=saas_host, pat=saas_pat)
         api_access = OpenApiAccess(client=client, account_id=saas_account_id)
         with api_access.allowed_ip():
+            start = time.monotonic()
             yield api_access
+            # Here is a temporary fix recommended by the SaaS team.
+            # We want to make sure the calls to add_allowed_ip and delete_allowed_ip
+            # are spaced by at least 3 minutes.
+            elapsed = time.monotonic() - start
+            remaining = 180.0 - elapsed
+            if remaining > 0:
+                time.sleep(remaining)
     else:
         yield None
 

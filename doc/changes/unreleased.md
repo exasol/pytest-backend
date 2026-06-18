@@ -8,3 +8,4 @@
 * #6: Updated mypy checks to include all packages from Exasol
 * #31: Updated to `exasol-toolbox` 8.2.0
 * #27: Fixed SonarQube warnings
+* Temporary fix setting a minimum time between the calls to add_allowed_ip and delete_allowed_ip.
