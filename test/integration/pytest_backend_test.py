@@ -36,7 +36,7 @@ def test_pytest_all_backends(pytester):
             assert res
 
         def test_backend_aware_bucketfs_params(backend_aware_bucketfs_params):
-            bfs_path = bfs.path.build_path(**backend_aware_bucketfs_params, path='plugin_test')
+            bfs_path = bfs.path.build_path(**backend_aware_bucketfs_params, path='plugin_test.csv')
             file_content = b'In God We Trust'
             bfs_path.write(file_content)
             data_back = b''.join(bfs_path.read())
