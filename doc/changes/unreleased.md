@@ -9,3 +9,4 @@
 * #31: Updated to `exasol-toolbox` 8.2.0
 * #27: Fixed SonarQube warnings
 * #34: Fixed SonarQube Cloud warning
+* #39: Updated to `exasol-toolbox` 9.0.0
