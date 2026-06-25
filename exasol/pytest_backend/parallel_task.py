@@ -45,7 +45,7 @@ class _ParallelGenCtxManager(AbstractContextManager, ContextDecorator):
             self._done.wait()
 
     def __enter__(self) -> _ParallelGenCtxManager:
-        self._proc: _mp_ctx.Process = _mp_ctx.Process(target=self._run)
+        self._proc = _mp_ctx.Process(target=self._run)
         self._proc.start()
         # Leave the process running
         return self
