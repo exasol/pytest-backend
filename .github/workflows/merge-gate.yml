@@ -4,6 +4,15 @@ name: Merge-Gate
 
 on:
   workflow_call:
+    secrets:
+      INTEGRATION_TEAM_SAAS_STAGING_HOST:
+        required: true
+      INTEGRATION_TEAM_SAAS_STAGING_ACCOUNT_ID:
+        required: true
+      INTEGRATION_TEAM_SAAS_STAGING_PAT:
+        required: true
+      SONAR_TOKEN:
+        required: true
 
 jobs:
   run-fast-checks:
@@ -24,7 +33,8 @@ jobs:
       - run-fast-checks
       - run-fast-tests
     uses: ./.github/workflows/report.yml
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     permissions:
       contents: read
 
@@ -46,7 +56,10 @@ jobs:
     needs:
       - approve-run-slow-tests
     uses: ./.github/workflows/slow-checks.yml
-    secrets: inherit
+    secrets:
+      INTEGRATION_TEAM_SAAS_STAGING_HOST: ${{ secrets.INTEGRATION_TEAM_SAAS_STAGING_HOST }}
+      INTEGRATION_TEAM_SAAS_STAGING_ACCOUNT_ID: ${{ secrets.INTEGRATION_TEAM_SAAS_STAGING_ACCOUNT_ID }}
+      INTEGRATION_TEAM_SAAS_STAGING_PAT: ${{ secrets.INTEGRATION_TEAM_SAAS_STAGING_PAT }}
     permissions:
       contents: read
 
