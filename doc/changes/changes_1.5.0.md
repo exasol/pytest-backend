@@ -31,7 +31,6 @@ This release fixes vulnerabilities by updating dependencies:
 * #39: Updated to `exasol-toolbox` 9.0.0
 * #41: Updated to `exasol-toolbox` 10.0.0
 * #3: Added support to Python3.14
-* #44: Split the `slow-checks.yml` into `slow-checks-itde.yml` and `slow-checks-saas.yml`
 
 ## Dependency Updates
 
