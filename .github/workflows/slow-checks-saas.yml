@@ -2,13 +2,6 @@ name: Slow-Checks-SaaS
 
 on:
   workflow_call:
-    secrets:
-      INTEGRATION_TEAM_SAAS_STAGING_HOST:
-        required: true
-      INTEGRATION_TEAM_SAAS_STAGING_ACCOUNT_ID:
-        required: true
-      INTEGRATION_TEAM_SAAS_STAGING_PAT:
-        required: true
 
 jobs:
   run-integration-tests:
