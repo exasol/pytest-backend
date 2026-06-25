@@ -25,9 +25,9 @@ from exasol.saas.client.api_access import (
 # continue to work until they are updated.
 # The patch addresses the issue in exasol-integration-test-docker-environment,
 # see https://github.com/exasol/integration-test-docker-environment/issues/647.
-if not hasattr(importlib.abc, "Traversable") and hasattr(importlib.resources, "abc"):
+if not hasattr(importlib.abc, "Traversable"):
     # isort: off
-    from importlib.resources.abc import Traversable as _Traversable  # pylint: disable=import-error,no-name-in-module # fmt: skip
+    from importlib.resources.abc import Traversable as _Traversable  # type: ignore[import-not-found] # pylint: disable=import-error,no-name-in-module # fmt: skip
     importlib.abc.Traversable = _Traversable  # type: ignore[misc,attr-defined]
     del _Traversable
 
