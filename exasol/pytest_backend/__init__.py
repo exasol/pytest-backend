@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.abc
 import os
 import ssl
 from collections.abc import Iterable
@@ -9,6 +10,16 @@ from typing import (
     Any,
 )
 from urllib.parse import urlparse
+
+# Python 3.14 removed importlib.abc.Traversable (moved to importlib.resources.abc
+# in 3.9). Patch it back so older dependencies that still use the removed location
+# continue to work until they are updated.
+# The patch addresses the issue in exasol-integration-test-docker-environment,
+# see https://github.com/exasol/integration-test-docker-environment/issues/647.
+if not hasattr(importlib.abc, "Traversable"):
+    from importlib.resources.abc import Traversable as _Traversable
+    importlib.abc.Traversable = _Traversable  # type: ignore[attr-defined]
+    del _Traversable
 
 import pytest
 from exasol.saas import client as saas_client
