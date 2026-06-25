@@ -26,8 +26,11 @@ from exasol.saas.client.api_access import (
 # The patch addresses the issue in exasol-integration-test-docker-environment,
 # see https://github.com/exasol/integration-test-docker-environment/issues/647.
 if not hasattr(importlib.abc, "Traversable"):
-    from importlib.resources.abc import Traversable as _Traversable  # pylint: disable=import-error,no-name-in-module
-    importlib.abc.Traversable = _Traversable  # type: ignore[attr-defined]
+    from importlib.resources.abc import (
+        Traversable as _Traversable,  # pylint: disable=import-error,no-name-in-module
+    )
+
+    importlib.abc.Traversable = _Traversable  # type: ignore[misc]
     del _Traversable
 
 # pylint: disable=wrong-import-position
@@ -46,6 +49,7 @@ from .itde import (
     itde_pytest_addoption,
 )
 from .parallel_task import paralleltask
+
 # pylint: enable=wrong-import-position
 
 __version__ = version("pytest-exasol-backend")
