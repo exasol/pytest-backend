@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.abc
 import os
 import ssl
 from collections.abc import Iterable
@@ -18,6 +19,19 @@ from exasol.saas.client.api_access import (
     get_connection_params,
     timestamp_name,
 )
+
+# Python 3.14 removed importlib.abc.Traversable (moved to importlib.resources.abc
+# in 3.9). Patch it back so older dependencies that still use the removed location
+# continue to work until they are updated.
+# The patch addresses the issue in exasol-integration-test-docker-environment,
+# see https://github.com/exasol/integration-test-docker-environment/issues/647.
+if not hasattr(importlib.abc, "Traversable"):
+    # isort: off
+    from importlib.resources.abc import Traversable as _Traversable  # type: ignore[import-not-found] # pylint: disable=import-error,no-name-in-module # fmt: skip
+    importlib.abc.Traversable = _Traversable  # type: ignore[misc,attr-defined]
+    del _Traversable
+
+# pylint: disable=wrong-import-position
 from exasol_integration_test_docker_environment.lib import api
 from exasol_integration_test_docker_environment.lib.models.data.environment_info import (
     EnvironmentInfo,
@@ -33,6 +47,8 @@ from .itde import (
     itde_pytest_addoption,
 )
 from .parallel_task import paralleltask
+
+# pylint: enable=wrong-import-position
 
 __version__ = version("pytest-exasol-backend")
 

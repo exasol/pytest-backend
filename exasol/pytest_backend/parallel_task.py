@@ -9,6 +9,12 @@ from contextlib import (
 from functools import wraps
 from typing import Any
 
+# Use fork explicitly: Python 3.14 changed the default start method on Linux
+# from "fork" to "forkserver". With forkserver/spawn, decorated functions are
+# not picklable because the inner generator's __qualname__ collides with the
+# module-level decorated name. Fork avoids serialisation entirely.
+_mp_ctx = mp.get_context("fork")
+
 
 class _ParallelGenCtxManager(AbstractContextManager, ContextDecorator):
 
@@ -17,9 +23,9 @@ class _ParallelGenCtxManager(AbstractContextManager, ContextDecorator):
         self._ctx_func = contextmanager(func)
         self._args = args
         self._kwargs = kwargs
-        self._queue = mp.Queue()
-        self._ready = mp.Event()
-        self._done = mp.Event()
+        self._queue = _mp_ctx.Queue()
+        self._ready = _mp_ctx.Event()
+        self._done = _mp_ctx.Event()
 
     def _run(self) -> None:
         try:
@@ -39,7 +45,7 @@ class _ParallelGenCtxManager(AbstractContextManager, ContextDecorator):
             self._done.wait()
 
     def __enter__(self) -> _ParallelGenCtxManager:
-        self._proc: mp.Process = mp.Process(target=self._run)
+        self._proc = _mp_ctx.Process(target=self._run)
         self._proc.start()
         # Leave the process running
         return self
