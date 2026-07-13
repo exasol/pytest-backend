@@ -17,6 +17,7 @@ dependencies = [
     "pytest>=9,<10",
     "exasol-integration-test-docker-environment>=4.3,<7",
     "exasol-saas-api>=2.8,<3",
+    "pyyaml (>=6.0.3,<7.0.0)",
 ]
 
 [tool.poetry]
